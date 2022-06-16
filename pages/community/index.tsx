@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
 import Link from "next/link";
+import FloatButton from "../../components/float-button";
 import Layout from "../../components/layout";
 
 const Community: NextPage = () => {
@@ -60,7 +61,7 @@ const Community: NextPage = () => {
           </Link>
         ))}
         {/* map end */}
-        <button className="fixed bottom-24 right-5 bg-orange-400 rounded-full p-3 text-white shadow-xl hover:bg-orange-500  cursor-pointer transition-colors">
+        <FloatButton>
           <Link href="/community/write">
             <svg
               className="w-6 h-6"
@@ -77,7 +78,7 @@ const Community: NextPage = () => {
               ></path>
             </svg>
           </Link>
-        </button>
+        </FloatButton>
       </div>
     </Layout>
   );
