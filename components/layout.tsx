@@ -89,7 +89,7 @@ export default function Layout({
               <span>채팅</span>
             </div>
           </Link>
-          <Link href="/streams">
+          <Link href="/live">
             <div className="flex flex-col items-center space-y-2">
               <svg
                 className="w-6 h-6"
