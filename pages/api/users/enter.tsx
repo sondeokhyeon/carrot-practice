@@ -65,4 +65,8 @@ async function handler(
   });
 }
 
-export default withHandler(HttpMethod.post, handler);
+export default withHandler({
+  method: HttpMethod.post,
+  handler,
+  isPrivate: false,
+});
