@@ -10,6 +10,22 @@ async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) {
+  if (req.method === HttpMethod.get) {
+    const products = await client.product.findMany({});
+    res.json({
+      ok: true,
+      products,
+    });
+  }
+  if (req.method === HttpMethod.post) {
+    await postReqHandler(req, res);
+  }
+}
+
+async function postReqHandler(
+  req: NextApiRequest,
+  res: NextApiResponse<ResponseType>
+) {
   const {
     body: { name, price, description },
     session: { user },
@@ -31,5 +47,9 @@ async function handler(
 }
 
 export default withApiSession(
-  withHandler({ method: HttpMethod.post, handler, isPrivate: false })
+  withHandler({
+    methods: [HttpMethod.get, HttpMethod.post],
+    handler,
+    isPrivate: false,
+  })
 );

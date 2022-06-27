@@ -66,7 +66,7 @@ async function handler(
 }
 
 export default withHandler({
-  method: HttpMethod.post,
+  methods: [HttpMethod.post],
   handler,
   isPrivate: false,
 });
