@@ -3,17 +3,24 @@ import Button from "@components/button";
 import Layout from "@components/layout";
 import { useRouter } from "next/router";
 import useSWR from "swr";
-import { Product } from "@prisma/client";
-import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import { Product, User } from "@prisma/client";
+import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-interface uploadProductMutation {
+import { ReactElement } from "react";
+
+interface ProductWithUser extends Product {
+  user: User;
+}
+
+interface itemDetailResponse {
   ok: boolean;
-  product: Product;
+  product: ProductWithUser;
+  relatedProducts: Product[];
 }
 
 const ItemDetail: NextPage = () => {
   const router = useRouter();
-  const { data } = useSWR<uploadProductMutation>(
+  const { data } = useSWR<itemDetailResponse>(
     router.query.id ? `/api/products/${router.query.id}` : null
   );
   return (
@@ -35,7 +42,6 @@ const ItemDetail: NextPage = () => {
           </div>
           <div className="mt-5">
             <h1 className="text-3xl font-bold text-gray-900">
-              {data?.product.name}
               <ItemSkeleton target={data?.product.name} count={1} />
             </h1>
             <span className="text-2xl block mt-3 text-gray-900">
@@ -69,11 +75,13 @@ const ItemDetail: NextPage = () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Similar items</h2>
           <div className=" mt-6 grid grid-cols-2 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((_, i) => (
-              <div key={i}>
+            {data?.relatedProducts.map((product) => (
+              <div key={product.id}>
                 <div className="h-56 w-full mb-4 bg-slate-300" />
-                <h3 className="text-gray-700 -mb-1">Galaxy S60</h3>
-                <span className="text-sm font-medium text-gray-900">$6</span>
+                <h3 className="text-gray-700 -mb-1">{product.name}</h3>
+                <span className="text-sm font-medium text-gray-900">
+                  {product.price}
+                </span>
               </div>
             ))}
           </div>
@@ -84,11 +92,11 @@ const ItemDetail: NextPage = () => {
 };
 
 interface SkeletonProps {
-  target: string | undefined;
+  target: string | number | undefined;
   count: number;
 }
 
-const ItemSkeleton = ({ count, target }: SkeletonProps) =>
-  !target ? <Skeleton count={count} /> : target;
+const ItemSkeleton = ({ count, target }: SkeletonProps): ReactElement =>
+  !target ? <Skeleton count={count} /> : <>{target}</>;
 
 export default ItemDetail;
