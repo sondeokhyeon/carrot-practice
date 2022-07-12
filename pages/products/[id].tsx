@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import Button from "@components/button";
 import Layout from "@components/layout";
 import { useRouter } from "next/router";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { Product, User } from "@prisma/client";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -10,6 +10,7 @@ import { ReactElement } from "react";
 import Link from "next/link";
 import useMutation from "@libs/client/useMutation";
 import { cls } from "@libs/client/utils";
+import useUser from "@libs/client/useUser";
 
 interface ProductWithUser extends Product {
   user: User;
@@ -23,13 +24,19 @@ interface itemDetailResponse {
 }
 
 const ItemDetail: NextPage = () => {
+  const { user, isLoading } = useUser();
   const router = useRouter();
-  const { data } = useSWR<itemDetailResponse>(
+  const { mutate } = useSWRConfig(); // unbound
+  const { data, mutate: boundMutate } = useSWR<itemDetailResponse>( //bound
     router.query.id ? `/api/products/${router.query.id}` : null
   );
   const [toggleFav] = useMutation(`/api/products/${router.query.id}/fav`);
   const onFavClick = () => {
+    if (!data) return;
+    boundMutate({ ...data, isLiked: !data.isLiked }, true);
+    // mutate("/api/users/me", { ok: false }, false);
     toggleFav({});
+    // 두번째 파라미터는 백엔드 요청 스위칭
   };
   return (
     <Layout canGoBack>
