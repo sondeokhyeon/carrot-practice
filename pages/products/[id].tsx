@@ -33,7 +33,7 @@ const ItemDetail: NextPage = () => {
   const [toggleFav] = useMutation(`/api/products/${router.query.id}/fav`);
   const onFavClick = () => {
     if (!data) return;
-    boundMutate({ ...data, isLiked: !data.isLiked }, true);
+    boundMutate({ ...data, isLiked: !data.isLiked }, false);
     // mutate("/api/users/me", { ok: false }, false);
     toggleFav({});
     // 두번째 파라미터는 백엔드 요청 스위칭
