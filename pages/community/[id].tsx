@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import useMutation from "@libs/client/useMutation";
 import { cls } from "@libs/client/utils";
 import produce from "immer";
+import { useForm } from "react-hook-form";
 
 interface User {
   name: string;
@@ -35,12 +36,28 @@ interface AnswerWithUser extends Answer {
   user: User;
 }
 
+interface AnswerForm {
+  answer: string;
+}
+
+interface AnswerResponse {
+  ok: boolean;
+  response: Answer;
+}
+
 const CommunityPostDetail: NextPage = () => {
   const router = useRouter();
+
+  const { register, handleSubmit, reset } = useForm<AnswerForm>();
   const { data, mutate } = useSWR<CommunityPostResponse>(
     router.query.id ? `/api/posts/${router.query.id}` : null
   );
-  const [wonder] = useMutation(`/api/posts/${router.query.id}/wonder`);
+  const [wonder, { loading }] = useMutation(
+    `/api/posts/${router.query.id}/wonder`
+  );
+  const [sendAnswer, { data: answerData, loading: answerLoading }] =
+    useMutation<AnswerResponse>(`/api/posts/${router.query.id}/answers`);
+
   const onWonderClick = () => {
     if (!data) return;
     // mutate(
@@ -59,7 +76,6 @@ const CommunityPostDetail: NextPage = () => {
     //   },
     //   false
     // );
-
     const drafeData = produce(data, (draft) => {
       if (draft.isWondering) {
         draft.post._count.wondering -= 1;
@@ -74,8 +90,14 @@ const CommunityPostDetail: NextPage = () => {
       },
       false
     );
+    if (!loading) {
+      wonder({});
+    }
+  };
 
-    wonder({});
+  const onValid = (form: AnswerForm) => {
+    if (answerLoading) return;
+    sendAnswer(form);
   };
 
   useEffect(() => {
@@ -83,6 +105,13 @@ const CommunityPostDetail: NextPage = () => {
       router.push("/community");
     }
   }, [data, router]);
+
+  useEffect(() => {
+    if (answerData && answerData.ok) {
+      reset();
+      mutate();
+    }
+  }, [answerData, reset, mutate]);
 
   return (
     <Layout canGoBack>
@@ -152,31 +181,40 @@ const CommunityPostDetail: NextPage = () => {
           </div>
         </div>
         <div className="px-4 my-5 space-y-5">
-          {data?.post?.answers.map((answer) => (
-            <div key={answer.id} className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-slate-200 rounded-full" />
-              <div>
-                <span className="text-sm block font-medium text-gray-700">
-                  {answer.user.name}
-                </span>
-                <span className="text-xs text-gray-500 block ">
-                  {answer.createdAt.toUTCString()}
-                </span>
-                <p className="text-gray-700 mt-2">{answer.answer}</p>
+          {data?.post?.answers.map((answer) => {
+            console.log(answer);
+
+            return (
+              <div key={answer.id} className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-slate-200 rounded-full" />
+                <div>
+                  <span className="text-sm block font-medium text-gray-700">
+                    {answer.user.name}
+                  </span>
+                  <span className="text-xs text-gray-500 block ">
+                    {answer?.createdAt
+                      .toString()
+                      .replace("T", " ")
+                      .substring(0, 19)}
+                  </span>
+                  <p className="text-gray-700 mt-2">{answer.answer}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
-        <div className="px-4">
+
+        <form action="" className="px-4" onSubmit={handleSubmit(onValid)}>
           <TextArea
             name="description"
             placeholder="Answer this question!"
             required
+            register={register("answer", { required: true, minLength: 5 })}
           />
           <button className="mt-2 w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 focus:outline-none ">
-            Reply
+            {answerLoading ? "Loading.." : "Reply"}
           </button>
-        </div>
+        </form>
       </div>
     </Layout>
   );
