@@ -18,7 +18,15 @@ async function handler(
       userId: user?.id,
     },
     include: {
-      product: true,
+      product: {
+        include: {
+          _count: {
+            select: {
+              favs: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -26,5 +34,5 @@ async function handler(
 }
 
 export default withApiSession(
-  withHandler({ methods: [HttpMethod.post], handler, isPrivate: false })
+  withHandler({ methods: [HttpMethod.get], handler, isPrivate: false })
 );

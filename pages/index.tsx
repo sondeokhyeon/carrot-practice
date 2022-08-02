@@ -10,8 +10,8 @@ interface ProductsResponse {
   ok: boolean;
   products: ProductWithCount[];
 }
-interface ProductWithCount extends Product {
-  _count: { Fav: number };
+export interface ProductWithCount extends Product {
+  _count: { favs: number };
 }
 
 const Home: NextPage = () => {
@@ -27,7 +27,7 @@ const Home: NextPage = () => {
             title={product.name}
             price={product.price}
             comments={0}
-            hearts={product._count.Fav}
+            hearts={product._count.favs}
           />
         ))}
         <FloatingButton href="/products/upload">
