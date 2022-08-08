@@ -9,6 +9,7 @@ import { useEffect } from "react";
 interface EditProfileForm {
   email?: string;
   phone?: string;
+  formErrors?: string;
 }
 
 const EditProfile: NextPage = () => {
@@ -63,7 +64,11 @@ const EditProfile: NextPage = () => {
           type="number"
           kind="phone"
         />
-        {/* {errors.formErrors ? <span className="my-2 text-red-500 font-bold block">{formErrors}</span> } */}
+        {errors.formErrors ? (
+          <span className="my-2 text-red-500 text-center font-medium block">
+            {errors.formErrors.message}
+          </span>
+        ) : null}
         <Button text="Update profile" />
       </form>
     </Layout>
