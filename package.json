@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^4.1.1",
+    "@prisma/client": "^4.2.0",
     "@tailwindcss/forms": "^0.5.2",
     "immer": "^9.0.15",
     "iron-session": "^6.1.3",
